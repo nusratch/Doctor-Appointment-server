@@ -121,6 +121,7 @@ async function run() {
     });
 
 
+    
 
     app.get("/doctors/:id", async (req, res) => {
 
@@ -177,7 +178,7 @@ async function run() {
 
 
 
-    
+
     app.patch("/appointments/:id", async (req, res) => {
 
       const id = req.params.id;
