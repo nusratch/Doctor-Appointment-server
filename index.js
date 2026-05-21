@@ -121,8 +121,6 @@ async function run() {
     });
 
 
-    
-
     app.get("/doctors/:id", async (req, res) => {
 
       const id = req.params.id;
