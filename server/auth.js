@@ -7,11 +7,11 @@ export const auth = betterAuth({
 
   secret: process.env.BETTER_AUTH_SECRET,
 
-  baseURL: "http://localhost:5000",
+baseURL: "https://your-render-backend-url.onrender.com",
 
-  trustedOrigins: [
-    "http://localhost:513",
-  ],
+trustedOrigins: [
+  "https://doctor-appointment-client-n1e60gj1w-nusrats-projects-299df817.vercel.app",
+],
 
   socialProviders: {
 
