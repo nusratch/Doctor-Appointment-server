@@ -16,7 +16,6 @@ export const auth = betterAuth({
 
     "https://doctor-appointment-client-psi.vercel.app",
 
-    "http://localhost:5173",
 
   ],
 
