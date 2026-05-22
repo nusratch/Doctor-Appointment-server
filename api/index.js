@@ -23,7 +23,7 @@ app.use(
 
 app.use(express.json());
 
-app.use("/api/auth", async (req, res) => {
+app.all("/api/auth/*", async (req, res) => {
   return auth.handler(req, res);
 });
 
@@ -104,12 +104,25 @@ app.get(
   "/doctors",
   async (req, res) => {
 
-    const result =
-      await doctorsCollection
-        .find()
-        .toArray();
+    try {
 
-    res.send(result);
+      const result =
+        await doctorsCollection
+          .find()
+          .toArray();
+
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+        message:
+          "Failed to get doctors",
+      });
+
+    }
 
   }
 );
@@ -118,14 +131,27 @@ app.get(
   "/doctors/:id",
   async (req, res) => {
 
-    const id = req.params.id;
+    try {
 
-    const result =
-      await doctorsCollection.findOne({
-        id,
+      const id = req.params.id;
+
+      const result =
+        await doctorsCollection.findOne({
+          id,
+        });
+
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+        message:
+          "Failed to get doctor",
       });
 
-    res.send(result);
+    }
 
   }
 );
@@ -150,76 +176,102 @@ app.post(
   "/register",
   async (req, res) => {
 
-    const user = req.body;
+    try {
 
-    const existingUser =
-      await usersCollection.findOne({
-        email: user.email,
-      });
+      const user = req.body;
 
-    if (existingUser) {
+      const existingUser =
+        await usersCollection.findOne({
+          email: user.email,
+        });
 
-      return res.status(400).send({
+      if (existingUser) {
+
+        return res.status(400).send({
+          message:
+            "User already exists",
+        });
+
+      }
+
+      const result =
+        await usersCollection.insertOne(
+          user
+        );
+
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
         message:
-          "User already exists",
+          "Registration failed",
       });
 
     }
-
-    const result =
-      await usersCollection.insertOne(
-        user
-      );
-
-    res.send(result);
 
   }
 );
 
 app.post("/login", async (req, res) => {
 
-  const {
-    email,
-    password,
-  } = req.body;
+  try {
 
-  const user =
-    await usersCollection.findOne({
+    const {
       email,
-    });
+      password,
+    } = req.body;
 
-  if (!user) {
+    const user =
+      await usersCollection.findOne({
+        email,
+      });
 
-    return res.status(401).send({
-      message: "User not found",
-    });
+    if (!user) {
 
-  }
+      return res.status(401).send({
+        message: "User not found",
+      });
 
-  if (
-    user.password !== password
-  ) {
-
-    return res.status(401).send({
-      message: "Wrong password",
-    });
-
-  }
-
-  const token = jwt.sign(
-    {
-      email: user.email,
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
     }
-  );
 
-  res.send({
-    token,
-    user,
-  });
+    if (
+      user.password !== password
+    ) {
+
+      return res.status(401).send({
+        message: "Wrong password",
+      });
+
+    }
+
+    const token = jwt.sign(
+      {
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    res.send({
+      token,
+      user,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).send({
+      message:
+        "Login failed",
+    });
+
+  }
 
 });
 
