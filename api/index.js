@@ -1,3 +1,4 @@
+import { auth } from "../server/auth.js";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -21,6 +22,10 @@ app.use(
 );
 
 app.use(express.json());
+
+app.all("/api/auth/*", async (req, res) => {
+  return auth.handler(req, res);
+});
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.pcz5eav.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
