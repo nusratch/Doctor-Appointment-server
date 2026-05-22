@@ -45,6 +45,10 @@ const appointmentsCollection = client
   .db("docappoint")
   .collection("appointments");
 
+const usersCollection = client
+  .db("docappoint")
+  .collection("users");
+
 const verifyToken = (req, res, next) => {
 
   const authorization = req.headers.authorization;
@@ -122,6 +126,72 @@ app.post("/jwt", async (req, res) => {
   );
 
   res.send({ token });
+
+});
+
+app.post("/register", async (req, res) => {
+
+  const user = req.body;
+
+  const existingUser =
+    await usersCollection.findOne({
+      email: user.email,
+    });
+
+  if (existingUser) {
+
+    return res.status(400).send({
+      message: "User already exists",
+    });
+
+  }
+
+  const result =
+    await usersCollection.insertOne(user);
+
+  res.send(result);
+
+});
+
+app.post("/login", async (req, res) => {
+
+  const { email, password } = req.body;
+
+  const user =
+    await usersCollection.findOne({
+      email,
+    });
+
+  if (!user) {
+
+    return res.status(401).send({
+      message: "User not found",
+    });
+
+  }
+
+  if (user.password !== password) {
+
+    return res.status(401).send({
+      message: "Wrong password",
+    });
+
+  }
+
+  const token = jwt.sign(
+    {
+      email: user.email,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+
+  res.send({
+    token,
+    user,
+  });
 
 });
 
