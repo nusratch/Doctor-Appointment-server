@@ -23,7 +23,7 @@ app.use(
 
 app.use(express.json());
 
-app.all("/api/auth/*", async (req, res) => {
+app.use("/api/auth", async (req, res) => {
   return auth.handler(req, res);
 });
 
