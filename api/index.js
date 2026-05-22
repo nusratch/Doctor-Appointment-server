@@ -16,7 +16,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://doctor-appointment-client-iu8u9qzlb-nusrats-projects-299df817.vercel.app",
+      "https://doctor-appointment-client-psi.vercel.app",
     ],
     credentials: true,
   })
