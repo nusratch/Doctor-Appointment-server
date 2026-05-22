@@ -49,9 +49,14 @@ const usersCollection = client
   .db("docappoint")
   .collection("users");
 
-const verifyToken = (req, res, next) => {
+const verifyToken = (
+  req,
+  res,
+  next
+) => {
 
-  const authorization = req.headers.authorization;
+  const authorization =
+    req.headers.authorization;
 
   if (!authorization) {
 
@@ -61,7 +66,8 @@ const verifyToken = (req, res, next) => {
 
   }
 
-  const token = authorization.split(" ")[1];
+  const token =
+    authorization.split(" ")[1];
 
   jwt.verify(
     token,
@@ -71,7 +77,8 @@ const verifyToken = (req, res, next) => {
       if (err) {
 
         return res.status(401).send({
-          message: "Unauthorized Access",
+          message:
+            "Unauthorized Access",
         });
 
       }
@@ -93,25 +100,35 @@ app.get("/", (req, res) => {
 
 });
 
-app.get("/doctors", async (req, res) => {
+app.get(
+  "/doctors",
+  async (req, res) => {
 
-  const result =
-    await doctorsCollection.find().toArray();
+    const result =
+      await doctorsCollection
+        .find()
+        .toArray();
 
-  res.send(result);
+    res.send(result);
 
-});
+  }
+);
 
-app.get("/doctors/:id", async (req, res) => {
+app.get(
+  "/doctors/:id",
+  async (req, res) => {
 
-  const id = req.params.id;
+    const id = req.params.id;
 
-  const result =
-    await doctorsCollection.findOne({ id });
+    const result =
+      await doctorsCollection.findOne({
+        id,
+      });
 
-  res.send(result);
+    res.send(result);
 
-});
+  }
+);
 
 app.post("/jwt", async (req, res) => {
 
@@ -129,33 +146,42 @@ app.post("/jwt", async (req, res) => {
 
 });
 
-app.post("/register", async (req, res) => {
+app.post(
+  "/register",
+  async (req, res) => {
 
-  const user = req.body;
+    const user = req.body;
 
-  const existingUser =
-    await usersCollection.findOne({
-      email: user.email,
-    });
+    const existingUser =
+      await usersCollection.findOne({
+        email: user.email,
+      });
 
-  if (existingUser) {
+    if (existingUser) {
 
-    return res.status(400).send({
-      message: "User already exists",
-    });
+      return res.status(400).send({
+        message:
+          "User already exists",
+      });
+
+    }
+
+    const result =
+      await usersCollection.insertOne(
+        user
+      );
+
+    res.send(result);
 
   }
-
-  const result =
-    await usersCollection.insertOne(user);
-
-  res.send(result);
-
-});
+);
 
 app.post("/login", async (req, res) => {
 
-  const { email, password } = req.body;
+  const {
+    email,
+    password,
+  } = req.body;
 
   const user =
     await usersCollection.findOne({
@@ -170,7 +196,9 @@ app.post("/login", async (req, res) => {
 
   }
 
-  if (user.password !== password) {
+  if (
+    user.password !== password
+  ) {
 
     return res.status(401).send({
       message: "Wrong password",
@@ -195,98 +223,169 @@ app.post("/login", async (req, res) => {
 
 });
 
-app.post("/appointments", async (req, res) => {
-
-  const appointment = req.body;
-
-  const result =
-    await appointmentsCollection.insertOne(
-      appointment
-    );
-
-  res.send(result);
-
-});
-
-app.get(
+app.post(
   "/appointments",
-  verifyToken,
   async (req, res) => {
 
-    const email = req.query.email;
+    try {
 
-    const query = {
-      userEmail: email,
-    };
+      const appointment =
+        req.body;
 
-    const result =
-      await appointmentsCollection
-        .find(query)
-        .toArray();
+      const result =
+        await appointmentsCollection.insertOne(
+          appointment
+        );
 
-    res.send(result);
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+        message:
+          "Failed to create appointment",
+      });
+
+    }
 
   }
 );
 
-app.patch("/appointments/:id", async (req, res) => {
+app.get(
+  "/appointments",
+  async (req, res) => {
 
-  const id = req.params.id;
+    try {
 
-  const filter = {
-    _id: new ObjectId(id),
-  };
+      const email =
+        req.query.email;
 
-  const updatedAppointment = req.body;
+      let query = {};
 
-  const updatedDoc = {
+      if (email) {
 
-    $set: {
+        query = {
+          userEmail: email,
+        };
 
-      patientName:
-        updatedAppointment.patientName,
+      }
 
-      gender:
-        updatedAppointment.gender,
+      const result =
+        await appointmentsCollection
+          .find(query)
+          .toArray();
 
-      phone:
-        updatedAppointment.phone,
+      res.send(result);
 
-      appointmentDate:
-        updatedAppointment.appointmentDate,
+    } catch (error) {
 
-      appointmentTime:
-        updatedAppointment.appointmentTime,
+      console.log(error);
 
-    },
+      res.status(500).send({
+        message:
+          "Failed to get appointments",
+      });
 
-  };
+    }
 
-  const result =
-    await appointmentsCollection.updateOne(
-      filter,
-      updatedDoc
-    );
+  }
+);
 
-  res.send(result);
+app.patch(
+  "/appointments/:id",
+  async (req, res) => {
 
-});
+    try {
 
-app.delete("/appointments/:id", async (req, res) => {
+      const id =
+        req.params.id;
 
-  const id = req.params.id;
+      const filter = {
+        _id: new ObjectId(id),
+      };
 
-  const query = {
-    _id: new ObjectId(id),
-  };
+      const updatedAppointment =
+        req.body;
 
-  const result =
-    await appointmentsCollection.deleteOne(
-      query
-    );
+      const updatedDoc = {
 
-  res.send(result);
+        $set: {
 
-});
+          patientName:
+            updatedAppointment.patientName,
+
+          gender:
+            updatedAppointment.gender,
+
+          phone:
+            updatedAppointment.phone,
+
+          appointmentDate:
+            updatedAppointment.appointmentDate,
+
+          appointmentTime:
+            updatedAppointment.appointmentTime,
+
+        },
+
+      };
+
+      const result =
+        await appointmentsCollection.updateOne(
+          filter,
+          updatedDoc
+        );
+
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+        message:
+          "Failed to update appointment",
+      });
+
+    }
+
+  }
+);
+
+app.delete(
+  "/appointments/:id",
+  async (req, res) => {
+
+    try {
+
+      const id =
+        req.params.id;
+
+      const query = {
+        _id: new ObjectId(id),
+      };
+
+      const result =
+        await appointmentsCollection.deleteOne(
+          query
+        );
+
+      res.send(result);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+        message:
+          "Failed to delete appointment",
+      });
+
+    }
+
+  }
+);
 
 export default app;
