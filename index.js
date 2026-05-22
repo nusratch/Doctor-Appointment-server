@@ -20,8 +20,7 @@ const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "https://doctor-appointment-client-n1e60gj1w-nusrats-projects-299df817.vercel.app",
+      "https://doctor-appointment-client-iu8u9qzlb-nusrats-projects-299df817.vercel.app",
     ],
     credentials: true,
   })

@@ -10,7 +10,7 @@ export const auth = betterAuth({
 baseURL: "https://your-render-backend-url.onrender.com",
 
 trustedOrigins: [
-  "https://doctor-appointment-client-n1e60gj1w-nusrats-projects-299df817.vercel.app",
+  "https://doctor-appointment-client-iu8u9qzlb-nusrats-projects-299df817.vercel.app",
 ],
 
   socialProviders: {
