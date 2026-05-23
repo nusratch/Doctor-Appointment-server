@@ -27,8 +27,8 @@ app.use(
 
 app.use(express.json());
 
-app.all(
-  "/api/auth/*",
+app.use(
+  "/api/auth",
   authHandler
 );
 
