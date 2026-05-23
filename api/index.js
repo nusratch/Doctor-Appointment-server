@@ -1,7 +1,11 @@
 import { auth } from "../server/auth.js";
+
 import express from "express";
+
 import cors from "cors";
+
 import dotenv from "dotenv";
+
 import jwt from "jsonwebtoken";
 
 import {
@@ -16,38 +20,66 @@ const app = express();
 
 app.use(
   cors({
-    origin: true,
+
+    origin: [
+      "https://doctor-appointment-client-psi.vercel.app",
+      "http://localhost:5173",
+    ],
+
     credentials: true,
+
   })
 );
 
 app.use(express.json());
 
-app.all("/api/auth/*", async (req, res) => {
-  return auth.handler(req, res);
-});
+app.all(
+  "/api/auth/*",
+  async (req, res) => {
+
+    return auth.handler(
+      req,
+      res
+    );
+
+  }
+);
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.pcz5eav.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const client =
+  new MongoClient(uri, {
 
-const doctorsCollection = client
-  .db("docappoint")
-  .collection("doctors");
+    serverApi: {
 
-const appointmentsCollection = client
-  .db("docappoint")
-  .collection("appointments");
+      version:
+        ServerApiVersion.v1,
 
-const usersCollection = client
-  .db("docappoint")
-  .collection("users");
+      strict: true,
+
+      deprecationErrors: true,
+
+    },
+
+  });
+
+await client.connect();
+
+console.log(
+  "MongoDB Connected"
+);
+
+const db =
+  client.db("docappoint");
+
+const doctorsCollection =
+  db.collection("doctors");
+
+const appointmentsCollection =
+  db.collection("appointments");
+
+const usersCollection =
+  db.collection("users");
 
 const verifyToken = (
   req,
@@ -61,7 +93,10 @@ const verifyToken = (
   if (!authorization) {
 
     return res.status(401).send({
-      message: "Unauthorized Access",
+
+      message:
+        "Unauthorized Access",
+
     });
 
   }
@@ -70,20 +105,26 @@ const verifyToken = (
     authorization.split(" ")[1];
 
   jwt.verify(
+
     token,
+
     process.env.JWT_SECRET,
+
     (err, decoded) => {
 
       if (err) {
 
         return res.status(401).send({
+
           message:
             "Unauthorized Access",
+
         });
 
       }
 
-      req.decoded = decoded;
+      req.decoded =
+        decoded;
 
       next();
 
@@ -118,8 +159,10 @@ app.get(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to get doctors",
+
       });
 
     }
@@ -133,7 +176,8 @@ app.get(
 
     try {
 
-      const id = req.params.id;
+      const id =
+        req.params.id;
 
       const result =
         await doctorsCollection.findOne({
@@ -147,8 +191,10 @@ app.get(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to get doctor",
+
       });
 
     }
@@ -156,21 +202,31 @@ app.get(
   }
 );
 
-app.post("/jwt", async (req, res) => {
+app.post(
+  "/jwt",
+  async (req, res) => {
 
-  const user = req.body;
+    const user =
+      req.body;
 
-  const token = jwt.sign(
-    user,
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
-    }
-  );
+    const token =
+      jwt.sign(
 
-  res.send({ token });
+        user,
 
-});
+        process.env.JWT_SECRET,
+
+        {
+
+          expiresIn: "1d",
+
+        }
+      );
+
+    res.send({ token });
+
+  }
+);
 
 app.post(
   "/register",
@@ -178,18 +234,24 @@ app.post(
 
     try {
 
-      const user = req.body;
+      const user =
+        req.body;
 
       const existingUser =
         await usersCollection.findOne({
-          email: user.email,
+
+          email:
+            user.email,
+
         });
 
       if (existingUser) {
 
         return res.status(400).send({
+
           message:
             "User already exists",
+
         });
 
       }
@@ -206,8 +268,10 @@ app.post(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Registration failed",
+
       });
 
     }
@@ -215,65 +279,86 @@ app.post(
   }
 );
 
-app.post("/login", async (req, res) => {
+app.post(
+  "/login",
+  async (req, res) => {
 
-  try {
+    try {
 
-    const {
-      email,
-      password,
-    } = req.body;
-
-    const user =
-      await usersCollection.findOne({
+      const {
         email,
-      });
+        password,
+      } = req.body;
 
-    if (!user) {
+      const user =
+        await usersCollection.findOne({
 
-      return res.status(401).send({
-        message: "User not found",
-      });
+          email,
 
-    }
+        });
 
-    if (
-      user.password !== password
-    ) {
+      if (!user) {
 
-      return res.status(401).send({
-        message: "Wrong password",
-      });
+        return res.status(401).send({
 
-    }
+          message:
+            "User not found",
 
-    const token = jwt.sign(
-      {
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
+        });
+
       }
-    );
 
-    res.send({
-      token,
-      user,
-    });
+      if (
+        user.password !==
+        password
+      ) {
 
-  } catch (error) {
+        return res.status(401).send({
 
-    console.log(error);
+          message:
+            "Wrong password",
 
-    res.status(500).send({
-      message:
-        "Login failed",
-    });
+        });
+
+      }
+
+      const token =
+        jwt.sign(
+
+          {
+            email:
+              user.email,
+          },
+
+          process.env.JWT_SECRET,
+
+          {
+            expiresIn: "1d",
+          }
+        );
+
+      res.send({
+
+        token,
+        user,
+
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).send({
+
+        message:
+          "Login failed",
+
+      });
+
+    }
 
   }
-
-});
+);
 
 app.post(
   "/appointments",
@@ -296,8 +381,10 @@ app.post(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to create appointment",
+
       });
 
     }
@@ -319,7 +406,10 @@ app.get(
       if (email) {
 
         query = {
-          userEmail: email,
+
+          userEmail:
+            email,
+
         };
 
       }
@@ -336,8 +426,10 @@ app.get(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to get appointments",
+
       });
 
     }
@@ -355,7 +447,10 @@ app.patch(
         req.params.id;
 
       const filter = {
-        _id: new ObjectId(id),
+
+        _id:
+          new ObjectId(id),
+
       };
 
       const updatedAppointment =
@@ -386,8 +481,10 @@ app.patch(
 
       const result =
         await appointmentsCollection.updateOne(
+
           filter,
           updatedDoc
+
         );
 
       res.send(result);
@@ -397,8 +494,10 @@ app.patch(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to update appointment",
+
       });
 
     }
@@ -416,7 +515,10 @@ app.delete(
         req.params.id;
 
       const query = {
-        _id: new ObjectId(id),
+
+        _id:
+          new ObjectId(id),
+
       };
 
       const result =
@@ -431,8 +533,10 @@ app.delete(
       console.log(error);
 
       res.status(500).send({
+
         message:
           "Failed to delete appointment",
+
       });
 
     }
