@@ -17,7 +17,7 @@ const auth =
       process.env.BETTER_AUTH_SECRET,
 
     baseURL:
-      process.env.BETTER_AUTH_URL,
+      "https://doctor-appointment-server-seven.vercel.app",
 
     trustedOrigins: [
 
@@ -26,6 +26,16 @@ const auth =
       "http://localhost:5173",
 
     ],
+
+    advanced: {
+
+      crossSubDomainCookies: {
+
+        enabled: true,
+
+      },
+
+    },
 
     database:
       mongodbAdapter(
