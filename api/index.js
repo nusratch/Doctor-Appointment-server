@@ -19,7 +19,7 @@ app.use(
   cors({
     origin: [
       "https://doctor-appointment-client-psi.vercel.app",
-   
+      "http://localhost:5173",
     ],
     credentials: true,
   })
@@ -27,10 +27,33 @@ app.use(
 
 app.use(express.json());
 
-app.all(
-  "/api/auth/{*path}",
+app.use(
+  "/api/auth",
   async (req, res) => {
-    return auth.handler(req, res);
+
+    const response =
+      await auth.handler(req);
+
+    response.headers.forEach(
+      (value, key) => {
+
+        res.setHeader(
+          key,
+          value
+        );
+
+      }
+    );
+
+    res.status(
+      response.status
+    );
+
+    const body =
+      await response.text();
+
+    res.send(body);
+
   }
 );
 
@@ -49,12 +72,15 @@ let appointmentsCollection;
 let usersCollection;
 
 async function connectDB() {
+
   try {
+
     await client.connect();
 
     console.log("MongoDB Connected");
 
-    const db = client.db("docappoint");
+    const db =
+      client.db("docappoint");
 
     doctorsCollection =
       db.collection("doctors");
@@ -66,8 +92,11 @@ async function connectDB() {
       db.collection("users");
 
   } catch (error) {
+
     console.log(error);
+
   }
+
 }
 
 await connectDB();
@@ -107,7 +136,8 @@ const verifyToken = (
 
       }
 
-      req.decoded = decoded;
+      req.decoded =
+        decoded;
 
       next();
 
@@ -359,7 +389,8 @@ app.get(
       if (email) {
 
         query = {
-          userEmail: email,
+          userEmail:
+            email,
         };
 
       }
