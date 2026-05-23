@@ -1,4 +1,4 @@
-import { auth } from "../server/auth.js";
+import { authHandler } from "../server/auth.js";
 
 import express from "express";
 import cors from "cors";
@@ -27,45 +27,23 @@ app.use(
 
 app.use(express.json());
 
-app.use(
-  "/api/auth",
-  async (req, res) => {
-
-    const response =
-      await auth.handler(req);
-
-    response.headers.forEach(
-      (value, key) => {
-
-        res.setHeader(
-          key,
-          value
-        );
-
-      }
-    );
-
-    res.status(
-      response.status
-    );
-
-    const body =
-      await response.text();
-
-    res.send(body);
-
-  }
+app.all(
+  "/api/auth/{*path}",
+  authHandler
 );
 
-const uri = process.env.MONGODB_URI;
+const uri =
+  process.env.MONGODB_URI;
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const client =
+  new MongoClient(uri, {
+    serverApi: {
+      version:
+        ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
 
 let doctorsCollection;
 let appointmentsCollection;
@@ -77,7 +55,9 @@ async function connectDB() {
 
     await client.connect();
 
-    console.log("MongoDB Connected");
+    console.log(
+      "MongoDB Connected"
+    );
 
     const db =
       client.db("docappoint");
