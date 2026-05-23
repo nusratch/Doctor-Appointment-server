@@ -29,9 +29,7 @@ app.use(express.json());
 
 app.all(
   "/api/auth/*",
-  (req, res) => {
-    authHandler(req, res);
-  }
+  authHandler
 );
 
 const uri =
