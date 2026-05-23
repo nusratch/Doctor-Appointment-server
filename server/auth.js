@@ -6,48 +6,41 @@ import { betterAuth } from "better-auth";
 
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 
-import { MongoClient } from "mongodb";
+import client from "../config/db.js";
 
-const client =
-  new MongoClient(
-    process.env.MONGODB_URI
-  );
+export const auth = betterAuth({
 
-await client.connect();
+  secret:
+    process.env.BETTER_AUTH_SECRET,
 
-export const auth =
-  betterAuth({
+  baseURL:
+    process.env.BETTER_AUTH_URL,
 
-    secret:
-      process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: [
 
-    baseURL:
-      "https://doctor-appointment-server-seven.vercel.app",
+    "https://doctor-appointment-client-psi.vercel.app",
 
-    trustedOrigins: [
+    "http://localhost:5173",
 
-      "https://doctor-appointment-client-psi.vercel.app",
+  ],
 
+  database:
+    mongodbAdapter(
+      client.db("docappoint")
+    ),
 
-    ],
+  socialProviders: {
 
-    database:
-      mongodbAdapter(
-        client.db("docappoint")
-      ),
+    google: {
 
-    socialProviders: {
+      clientId:
+        process.env.GOOGLE_CLIENT_ID,
 
-      google: {
-
-        clientId:
-          process.env.GOOGLE_CLIENT_ID,
-
-        clientSecret:
-          process.env.GOOGLE_CLIENT_SECRET,
-
-      },
+      clientSecret:
+        process.env.GOOGLE_CLIENT_SECRET,
 
     },
 
-  });
+  },
+
+});

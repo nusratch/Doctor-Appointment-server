@@ -1,25 +1,7 @@
-import {
-  MongoClient,
-  ServerApiVersion,
-} from "mongodb";
+import { MongoClient } from "mongodb";
 
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.pcz5eav.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = process.env.MONGODB_URI;
 
-const client =
-  new MongoClient(uri, {
-
-    serverApi: {
-
-      version:
-        ServerApiVersion.v1,
-
-      strict: true,
-
-      deprecationErrors: true,
-
-    },
-
-  });
+const client = new MongoClient(uri);
 
 export default client;
