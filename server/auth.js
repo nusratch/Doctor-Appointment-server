@@ -27,16 +27,6 @@ const auth =
 
     ],
 
-    advanced: {
-
-      crossSubDomainCookies: {
-
-        enabled: true,
-
-      },
-
-    },
-
     database:
       mongodbAdapter(
         client.db("docappoint")
