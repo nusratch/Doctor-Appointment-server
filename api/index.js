@@ -1,4 +1,10 @@
-import { authHandler } from "../server/auth.js";
+import {
+  auth,
+} from "../server/auth.js";
+
+import {
+  toNodeHandler,
+} from "better-auth/node";
 
 import express from "express";
 import cors from "cors";
@@ -27,9 +33,9 @@ app.use(
 
 app.use(express.json());
 
-app.use(
-  "/api/auth",
-  authHandler
+app.all(
+  "/api/auth/*",
+  toNodeHandler(auth)
 );
 
 const uri =
