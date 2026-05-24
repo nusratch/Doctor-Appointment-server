@@ -48,9 +48,7 @@ const auth =
     },
 
     database:
-      mongodbAdapter(
-        client.db("docappoint")
-      ),
+      mongodbAdapter(client.db()),
 
     socialProviders: {
 
