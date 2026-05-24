@@ -17,7 +17,7 @@ const auth =
       process.env.BETTER_AUTH_SECRET,
 
     baseURL:
-      "https://doctor-appointment-server-seven.vercel.app",
+      "https://doctor-appointment-server-seven.vercel.app/api/auth",
 
     trustedOrigins: [
 
