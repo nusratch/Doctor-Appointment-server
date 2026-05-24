@@ -17,7 +17,7 @@ const auth =
       process.env.BETTER_AUTH_SECRET,
 
     baseURL:
-      "https://doctor-appointment-server-seven.vercel.app/api/auth",
+      "https://doctor-appointment-server-seven.vercel.app",
 
     trustedOrigins: [
 
@@ -26,6 +26,18 @@ const auth =
       "http://localhost:5173",
 
     ],
+
+    advanced: {
+
+      defaultCookieAttributes: {
+
+        sameSite: "none",
+
+        secure: true,
+
+      },
+
+    },
 
     session: {
 
